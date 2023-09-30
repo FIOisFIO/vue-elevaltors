@@ -5,9 +5,9 @@
             :style="{
                 transform: 'translateY(' + calcTranslate() + 'px)',
                 height: floorHeignt + 'px',
-                transitionDuration:
-                    Math.abs(nextFloor || curFloor - curFloor) + 's',
+                transitionDuration: calcTravelDuration() + 's',
             }"
+            :class="reload"
             @click="console.log(queue)"
         ></div>
     </div>
@@ -28,6 +28,7 @@ export default defineComponent({
     data() {
         return {
             curFloor: 1,
+            reload: "",
         };
     },
     methods: {
@@ -38,15 +39,26 @@ export default defineComponent({
                 return (this.curFloor - 1) * -(this.floorHeignt || 0);
             }
         },
+        calcTravelDuration() {
+            return Math.abs((this.nextFloor || this.curFloor) - this.curFloor);
+        },
+        moveToFloor() {
+            this.$emit("elevatorMove", true);
+            setTimeout(() => {
+                if (this.nextFloor) {
+                    this.curFloor = this.nextFloor;
+                    this.reload = "reloading";
+                }
+                setTimeout(() => {
+                    this.$emit("elevatorMove", false);
+                    this.reload = "";
+                }, 3000);
+            }, this.calcTravelDuration() * 1000);
+        },
     },
     watch: {
-        queue: {
-            handler(newValue) {
-                for (let i = 0; i < newValue.length; i++) {
-                    console.log(this.queue);
-                }
-            },
-            deep: true,
+        nextFloor() {
+            this.moveToFloor();
         },
     },
 });
@@ -65,5 +77,16 @@ export default defineComponent({
     border: 1px solid black;
     width: 30px;
     box-sizing: border-box;
+}
+.reloading {
+    animation: reload 1s ease infinite;
+}
+@keyframes reload {
+    from {
+        opacity: 0.6;
+    }
+    to {
+        opacity: 1;
+    }
 }
 </style>

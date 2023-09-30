@@ -40,6 +40,7 @@ export default defineComponent({
 <style>
 .callElevatorBtn {
     background-color: blue;
+    height: 100%;
 }
 .active {
     background-color: red;
