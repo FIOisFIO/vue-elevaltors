@@ -1,5 +1,5 @@
 <template>
-    <div class="main-wrp">
+    <div class="main-wrp" :style="{ height: floorHeignt * floorsCount + 'px' }">
         <div class="elevators-wrp">
             <elevator-c
                 v-for="(elevator, index) in elevators"
@@ -35,8 +35,8 @@ export default defineComponent({
     components: { elevatorC, floorC },
     data() {
         return {
-            floorsCount: 5,
-            elevatorsCount: 2,
+            floorsCount: 10,
+            elevatorsCount: 5,
             floorHeignt: 50,
             queue: [] as number[],
             elevators: [
@@ -120,7 +120,6 @@ export default defineComponent({
 <style>
 .main-wrp {
     display: flex;
-    height: 300px;
 }
 .elevators-wrp {
     display: flex;
