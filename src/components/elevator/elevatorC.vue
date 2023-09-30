@@ -3,12 +3,11 @@
         <div
             class="elevator"
             :style="{
-                transform: 'translateY(' + calcTranslate() + 'px)',
+                transitionDuration: travelDuration + 's',
+                transform: 'translateY(' + translate + 'px)',
                 height: floorHeignt + 'px',
-                transitionDuration: calcTravelDuration() + 's',
             }"
             :class="reload"
-            @click="console.log(queue)"
         ></div>
     </div>
 </template>
@@ -27,30 +26,39 @@ export default defineComponent({
     },
     data() {
         return {
-            curFloor: 1,
+            curFloor: 0,
             reload: "",
+            travelDuration: 0,
+            translate: 0,
         };
     },
     methods: {
         calcTranslate(): number {
-            if (this.nextFloor) {
-                return (this.nextFloor - 1) * -(this.floorHeignt || 0);
+            if (this.nextFloor !== undefined) {
+                return this.nextFloor * -(this.floorHeignt || 0);
             } else {
-                return (this.curFloor - 1) * -(this.floorHeignt || 0);
+                return this.curFloor * -(this.floorHeignt || 0);
             }
         },
         calcTravelDuration() {
-            return Math.abs((this.nextFloor || this.curFloor) - this.curFloor);
+            return this.nextFloor !== undefined
+                ? Math.abs(this.nextFloor - this.curFloor)
+                : 0;
         },
         moveToFloor() {
             this.$emit("elevatorMove", true);
+            this.$emit("elevatorFree", false);
+            this.travelDuration = this.calcTravelDuration();
+            this.translate = this.calcTranslate();
+
             setTimeout(() => {
-                if (this.nextFloor) {
+                if (this.nextFloor !== undefined) {
                     this.curFloor = this.nextFloor;
                     this.reload = "reloading";
+                    this.$emit("elevatorMove", false);
                 }
                 setTimeout(() => {
-                    this.$emit("elevatorMove", false);
+                    this.$emit("elevatorFree", true);
                     this.reload = "";
                 }, 3000);
             }, this.calcTravelDuration() * 1000);

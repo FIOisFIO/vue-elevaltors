@@ -8,14 +8,16 @@
                 :floorHeignt="floorHeignt"
                 :nextFloor="elevators[index].nextFloor"
                 @elevatorMove="(event) => onElevatorMove(event, index)"
+                @elevatorFree="(event) => onElevatorFree(event, index)"
             ></elevator-c>
         </div>
         <div class="floors-wrp">
             <floor-c
-                v-for="floor in floorsCount"
-                :key="floor"
-                :id="floor"
+                v-for="(floor, index) in floors"
+                :key="index"
+                :id="index"
                 :floorHeignt="floorHeignt"
+                :isCalled="floors[index]"
                 @call="callElevator"
             >
             </floor-c>
@@ -40,28 +42,40 @@ export default defineComponent({
             elevators: [
                 {
                     isMoving: false,
-                    nextFloor: 1,
+                    nextFloor: 0,
                 },
             ],
+            floors: [] as boolean[],
         };
     },
     methods: {
         callElevator(floor: number) {
-            if (this.checkFloorCallable(floor)) this.queue.push(floor);
+            if (!this.checkFloorCallable(floor)) {
+                return;
+            }
+            this.queue.push(floor);
+            this.floors[floor] = true;
             const freeElevator = this.findRelevantElevator(floor);
             if (this.queue.length === 1 && freeElevator) {
                 this.launchElevator(freeElevator);
             }
         },
         onElevatorMove(e: boolean, index: number) {
-            this.elevators[index].isMoving = e;
-            if (!e && this.queue.length !== 0) {
-                this.launchElevator(this.elevators[index]);
+            if (!e) {
+                const elevator = this.elevators[index];
+                this.floors[elevator.nextFloor] = false;
+            }
+        },
+        onElevatorFree(e: boolean, index: number) {
+            const elevator = this.elevators[index];
+            elevator.isMoving = !e;
+            if (e) {
+                this.launchElevator(elevator);
             }
         },
         launchElevator(elevator: any) {
             const firstInQueue = this.queue.shift();
-            if (firstInQueue) elevator.nextFloor = firstInQueue;
+            if (firstInQueue !== undefined) elevator.nextFloor = firstInQueue;
         },
         getFreeElevators() {
             return this.elevators.filter((elevator) => !elevator.isMoving);
@@ -80,15 +94,13 @@ export default defineComponent({
                 }, freeElevators[0]) || null
             );
         },
-        getFreeElevatorsPosition() {
-            return this.getFreeElevators().map(
-                (elevator) => elevator.nextFloor
-            );
+        getElevatorsPosition() {
+            return this.elevators.map((elevator) => elevator.nextFloor);
         },
         checkFloorCallable(floor: number) {
             return (
                 !this.queue.includes(floor) &&
-                !this.getFreeElevatorsPosition().includes(floor)
+                !this.getElevatorsPosition().includes(floor)
             );
         },
     },
@@ -97,9 +109,10 @@ export default defineComponent({
         for (let i = 0; i < this.elevatorsCount; i++) {
             this.elevators.push({
                 isMoving: false,
-                nextFloor: 1,
+                nextFloor: 0,
             });
         }
+        this.floors = new Array(this.floorsCount).fill(false);
     },
 });
 </script>
