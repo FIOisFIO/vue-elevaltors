@@ -5,20 +5,26 @@
             height: floorHeignt + 'px',
         }"
     >
-        <button
+        <elevator-btn
             @click="$emit('call', id)"
-            class="callElevatorBtn"
             :class="activeClass"
-        ></button>
+            :floor="id"
+        >
+        </elevator-btn>
+
+        <div class="floor-num">Этаж {{ id + 1 }}</div>
+        <div class="ceiling"></div>
+        <div class="floor-material"></div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import elevatorBtn from "../../ui/elevatorBtn/elevatorBtn.vue";
 
 export default defineComponent({
     name: "App",
-    components: {},
+    components: { elevatorBtn },
     props: {
         floorHeignt: Number,
         id: Number,
@@ -38,11 +44,36 @@ export default defineComponent({
 });
 </script>
 <style>
-.callElevatorBtn {
-    background-color: blue;
-    height: 100%;
+.floor {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: relative;
+}
+.floor-num {
+    font-size: 50px;
+}
+.ceiling {
+    width: 100%;
+    height: 5px;
+    background-image: url("../../assets/ceiling.jpg");
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    border-radius: 10px;
+}
+.floor-material {
+    width: 100%;
+    height: 5px;
+    background-image: url("../../assets/floor.jpg");
+    background-size: cover;
+    position: absolute;
+    bottom: 0;
+    border-radius: 10px;
 }
 .active {
-    background-color: red;
+    background-color: #e55f5f;
 }
 </style>

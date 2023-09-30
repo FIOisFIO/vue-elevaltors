@@ -35,9 +35,9 @@ export default defineComponent({
     components: { elevatorC, floorC },
     data() {
         return {
-            floorsCount: 10,
+            floorsCount: 5,
             elevatorsCount: 5,
-            floorHeignt: 50,
+            floorHeignt: 150,
             queue: [] as number[],
             elevators: [
                 {
@@ -118,6 +118,9 @@ export default defineComponent({
 </script>
 
 <style>
+#app {
+    font-family: Arial, Helvetica, sans-serif;
+}
 .main-wrp {
     display: flex;
 }
@@ -128,5 +131,6 @@ export default defineComponent({
 .floors-wrp {
     display: flex;
     flex-direction: column-reverse;
+    width: 100%;
 }
 </style>

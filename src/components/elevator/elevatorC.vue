@@ -8,7 +8,18 @@
                 height: floorHeignt + 'px',
             }"
             :class="reload"
-        ></div>
+        >
+            <template v-if="isMoving">
+                <img
+                    src="../../assets/arrow-sm-up.svg"
+                    class="direction-arrow"
+                    :style="{
+                        transform: `rotateZ(${rotateByDirection}deg)`,
+                    }"
+                />
+                <div class="floor-indicator">{{ nextFloor! + 1 }}</div>
+            </template>
+        </div>
     </div>
 </template>
 
@@ -30,6 +41,8 @@ export default defineComponent({
             reload: "",
             travelDuration: 0,
             translate: 0,
+            isMoving: false,
+            movingDirection: "",
         };
     },
     methods: {
@@ -46,9 +59,16 @@ export default defineComponent({
                 : 0;
         },
         moveToFloor() {
+            if (this.curFloor === undefined || this.nextFloor === undefined) {
+                throw new Error("invalid floor data");
+            }
+
             this.$emit("elevatorMove", true);
             this.$emit("elevatorFree", false);
-            this.travelDuration = this.calcTravelDuration();
+            this.isMoving = true;
+            (this.movingDirection =
+                this.nextFloor > this.curFloor ? "up" : "down"),
+                (this.travelDuration = this.calcTravelDuration());
             this.translate = this.calcTranslate();
 
             setTimeout(() => {
@@ -56,12 +76,18 @@ export default defineComponent({
                     this.curFloor = this.nextFloor;
                     this.reload = "reloading";
                     this.$emit("elevatorMove", false);
+                    this.isMoving = false;
                 }
                 setTimeout(() => {
                     this.$emit("elevatorFree", true);
                     this.reload = "";
                 }, 3000);
             }, this.calcTravelDuration() * 1000);
+        },
+    },
+    computed: {
+        rotateByDirection() {
+            return this.movingDirection === "down" ? 180 : 0;
         },
     },
     watch: {
@@ -75,19 +101,33 @@ export default defineComponent({
 <style>
 .mine {
     height: 100%;
-    width: 50px;
+    width: 150px;
     display: flex;
     align-items: flex-end;
+    justify-content: center;
 }
-
 .elevator {
-    background-color: blueviolet;
-    border: 1px solid black;
-    width: 30px;
+    background-image: url(../../assets/elevator.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 150px;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .reloading {
     animation: reload 1s ease infinite;
+}
+.direction-arrow {
+    width: 50px;
+    position: relative;
+}
+.floor-indicator {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 50px;
 }
 @keyframes reload {
     from {
