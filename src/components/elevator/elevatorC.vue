@@ -62,7 +62,9 @@ export default defineComponent({
             if (this.curFloor === undefined || this.nextFloor === undefined) {
                 throw new Error("invalid floor data");
             }
-
+            if (this.curFloor === this.nextFloor) {
+                return;
+            }
             this.$emit("elevatorMove", true);
             this.$emit("elevatorFree", false);
             this.isMoving = true;
@@ -94,6 +96,13 @@ export default defineComponent({
         nextFloor() {
             this.moveToFloor();
         },
+    },
+    mounted() {
+        this.curFloor = this.nextFloor || 0;
+        this.translate = this.calcTranslate();
+        setTimeout(() => {
+            this.$emit("elevatorFree", true);
+        }, 0);
     },
 });
 </script>

@@ -7,12 +7,11 @@
     >
         <elevator-btn
             @click="$emit('call', id)"
-            :class="activeClass"
+            :class="{ active: isCalled }"
             :floor="id"
         >
         </elevator-btn>
 
-        <div class="floor-num">Этаж {{ id + 1 }}</div>
         <div class="ceiling"></div>
         <div class="floor-material"></div>
     </div>
@@ -36,10 +35,8 @@ export default defineComponent({
             nextFloor: 1,
         };
     },
-    computed: {
-        activeClass() {
-            return this.isCalled ? "active" : "";
-        },
+    mounted() {
+        console.log(this.isCalled);
     },
 });
 </script>
@@ -49,7 +46,6 @@ export default defineComponent({
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: space-around;
     position: relative;
 }
 .floor-num {

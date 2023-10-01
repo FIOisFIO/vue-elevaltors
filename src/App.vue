@@ -29,22 +29,22 @@
 import { defineComponent } from "vue";
 import elevatorC from "./components/elevator/elevatorC.vue";
 import floorC from "./components/floor/floorC.vue";
+import { Elevator } from "./types";
+import {
+    getElevatorsState,
+    saveElevatorsState,
+} from "./helpers/localStorage.helper";
 
 export default defineComponent({
     name: "App",
     components: { elevatorC, floorC },
     data() {
         return {
-            floorsCount: 5,
-            elevatorsCount: 5,
+            floorsCount: 8,
+            elevatorsCount: 2,
             floorHeignt: 150,
             queue: [] as number[],
-            elevators: [
-                {
-                    isMoving: false,
-                    nextFloor: 0,
-                },
-            ],
+            elevators: [] as Elevator[],
             floors: [] as boolean[],
         };
     },
@@ -56,9 +56,12 @@ export default defineComponent({
             this.queue.push(floor);
             this.floors[floor] = true;
             const freeElevator = this.findRelevantElevator(floor);
+
             if (this.queue.length === 1 && freeElevator) {
                 this.launchElevator(freeElevator);
+                return;
             }
+            saveElevatorsState(this.queue, this.elevators);
         },
         onElevatorMove(e: boolean, index: number) {
             if (!e) {
@@ -73,9 +76,12 @@ export default defineComponent({
                 this.launchElevator(elevator);
             }
         },
-        launchElevator(elevator: any) {
+        launchElevator(elevator: Elevator) {
             const firstInQueue = this.queue.shift();
-            if (firstInQueue !== undefined) elevator.nextFloor = firstInQueue;
+            if (firstInQueue !== undefined) {
+                elevator.nextFloor = firstInQueue;
+            }
+            saveElevatorsState(this.queue, this.elevators);
         },
         getFreeElevators() {
             return this.elevators.filter((elevator) => !elevator.isMoving);
@@ -104,15 +110,24 @@ export default defineComponent({
             );
         },
     },
-    created() {
+    mounted() {
+        let state = getElevatorsState();
+        state =
+            state && state.positions.length === this.elevatorsCount
+                ? state
+                : null;
+        console.log(state);
         this.elevators = [];
         for (let i = 0; i < this.elevatorsCount; i++) {
             this.elevators.push({
                 isMoving: false,
-                nextFloor: 0,
+                nextFloor: state?.positions[i] || 0,
             });
         }
-        this.floors = new Array(this.floorsCount).fill(false);
+        this.queue = state?.queue || [];
+        this.floors = new Array(this.floorsCount)
+            .fill(false)
+            .map((floor, index) => !!state?.queue[index]);
     },
 });
 </script>
