@@ -42,7 +42,7 @@ export default defineComponent({
     data() {
         return {
             floorsCount: 5,
-            elevatorsCount: 1,
+            elevatorsCount: 4,
             floorHeignt: 150,
             queue: [] as number[],
             elevators: [] as Elevator[],
