@@ -35,9 +35,9 @@ export default defineComponent({
             nextFloor: 1,
         };
     },
-    mounted() {
-        console.log(this.isCalled);
-    },
+    // mounted() {
+    //     console.log(this.isCalled);
+    // },
 });
 </script>
 <style>

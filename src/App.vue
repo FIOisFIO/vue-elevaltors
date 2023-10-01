@@ -33,6 +33,7 @@ import { Elevator } from "./types";
 import {
     getElevatorsState,
     saveElevatorsState,
+    clearState,
 } from "./helpers/localStorage.helper";
 
 export default defineComponent({
@@ -40,8 +41,8 @@ export default defineComponent({
     components: { elevatorC, floorC },
     data() {
         return {
-            floorsCount: 8,
-            elevatorsCount: 2,
+            floorsCount: 5,
+            elevatorsCount: 1,
             floorHeignt: 150,
             queue: [] as number[],
             elevators: [] as Elevator[],
@@ -116,7 +117,7 @@ export default defineComponent({
             state && state.positions.length === this.elevatorsCount
                 ? state
                 : null;
-        console.log(state);
+        if (!state) clearState();
         this.elevators = [];
         for (let i = 0; i < this.elevatorsCount; i++) {
             this.elevators.push({
@@ -127,7 +128,7 @@ export default defineComponent({
         this.queue = state?.queue || [];
         this.floors = new Array(this.floorsCount)
             .fill(false)
-            .map((floor, index) => !!state?.queue[index]);
+            .map((floor, index) => !!state?.queue.includes(index));
     },
 });
 </script>

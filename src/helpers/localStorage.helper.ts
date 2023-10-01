@@ -11,3 +11,6 @@ export function saveElevatorsState(queue: number[], elevators: Elevator[]) {
 export function getElevatorsState(): ElevatorsState | null {
     return JSON.parse(localStorage.getItem("elevatorsState") || "null");
 }
+export function clearState() {
+    localStorage.removeItem("elevatorsState");
+}
