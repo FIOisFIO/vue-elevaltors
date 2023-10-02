@@ -3,7 +3,7 @@
         <div
             class="elevator"
             :style="{
-                transitionDuration: travelDuration + 's',
+                transitionDuration: travelDuration + 'ms',
                 transform: 'translateY(' + translate + 'px)',
                 height: floorHeignt + 'px',
             }"
@@ -57,7 +57,7 @@ export default defineComponent({
         },
         calcTravelDuration() {
             return this.nextFloor !== undefined
-                ? Math.abs(this.nextFloor - this.curFloor)
+                ? Math.abs(this.nextFloor - this.curFloor) * this.elevatorSpeed
                 : 0;
         },
         moveToFloor() {
@@ -88,7 +88,7 @@ export default defineComponent({
                     this.$emit("elevatorFree", true);
                     this.reload = "";
                 }, this.elevatorReload);
-            }, this.calcTravelDuration() * this.elevatorSpeed);
+            }, this.calcTravelDuration());
         },
     },
     computed: {
