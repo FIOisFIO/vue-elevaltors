@@ -34,6 +34,8 @@ export default defineComponent({
         id: Number,
         queue: Array,
         nextFloor: Number,
+        elevatorSpeed: { type: Number, required: true },
+        elevatorReload: { type: Number, required: true },
     },
     data() {
         return {
@@ -62,9 +64,11 @@ export default defineComponent({
             if (this.curFloor === undefined || this.nextFloor === undefined) {
                 throw new Error("invalid floor data");
             }
+
             if (this.curFloor === this.nextFloor) {
                 return;
             }
+
             this.$emit("elevatorMove", true);
             this.$emit("elevatorFree", false);
             this.isMoving = true;
@@ -83,8 +87,8 @@ export default defineComponent({
                 setTimeout(() => {
                     this.$emit("elevatorFree", true);
                     this.reload = "";
-                }, 3000);
-            }, this.calcTravelDuration() * 1000);
+                }, this.elevatorReload);
+            }, this.calcTravelDuration() * this.elevatorSpeed);
         },
     },
     computed: {

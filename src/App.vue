@@ -7,6 +7,8 @@
                 :id="index"
                 :floorHeignt="floorHeignt"
                 :nextFloor="elevators[index].nextFloor"
+                :elevatorSpeed="elevatorSpeed"
+                :elevatorReload="elevatorReload"
                 @elevatorMove="(event) => onElevatorMove(event, index)"
                 @elevatorFree="(event) => onElevatorFree(event, index)"
             ></elevator-c>
@@ -35,15 +37,18 @@ import {
     saveElevatorsState,
     clearState,
 } from "./helpers/localStorage.helper";
+import { config } from "./config";
 
 export default defineComponent({
     name: "App",
     components: { elevatorC, floorC },
     data() {
         return {
-            floorsCount: 5,
-            elevatorsCount: 4,
-            floorHeignt: 150,
+            floorsCount: config.floorsCount,
+            elevatorsCount: config.elevatorsCount,
+            floorHeignt: config.floorHeignt,
+            elevatorSpeed: config.elevatorSpeed,
+            elevatorReload: config.elevatorReload,
             queue: [] as number[],
             elevators: [] as Elevator[],
             floors: [] as boolean[],
@@ -54,14 +59,17 @@ export default defineComponent({
             if (!this.checkFloorCallable(floor)) {
                 return;
             }
+
             this.queue.push(floor);
             this.floors[floor] = true;
             const freeElevator = this.findRelevantElevator(floor);
 
             if (this.queue.length === 1 && freeElevator) {
                 this.launchElevator(freeElevator);
+
                 return;
             }
+
             saveElevatorsState(this.queue, this.elevators);
         },
         checkFloorCallable(floor: number) {
@@ -72,6 +80,7 @@ export default defineComponent({
         },
         findRelevantElevator(floor: number) {
             const freeElevators = this.getFreeElevators();
+
             return (
                 freeElevators.reduce((acc, elevator) => {
                     if (
@@ -86,9 +95,11 @@ export default defineComponent({
         },
         launchElevator(elevator: Elevator) {
             const firstInQueue = this.queue.shift();
+
             if (firstInQueue !== undefined) {
                 elevator.nextFloor = firstInQueue;
             }
+
             saveElevatorsState(this.queue, this.elevators);
         },
         onElevatorMove(e: boolean, index: number) {
@@ -99,7 +110,9 @@ export default defineComponent({
         },
         onElevatorFree(e: boolean, index: number) {
             const elevator = this.elevators[index];
+
             elevator.isMoving = !e;
+
             if (e) {
                 this.launchElevator(elevator);
             }
@@ -114,18 +127,23 @@ export default defineComponent({
     },
     mounted() {
         let state = getElevatorsState();
+
         state =
             state && state.positions.length === this.elevatorsCount
                 ? state
                 : null;
+
         if (!state) clearState();
+
         this.elevators = [];
+
         for (let i = 0; i < this.elevatorsCount; i++) {
             this.elevators.push({
                 isMoving: false,
                 nextFloor: state?.positions[i] || 0,
             });
         }
+
         this.queue = state?.queue || [];
         this.floors = new Array(this.floorsCount)
             .fill(false)
