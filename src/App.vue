@@ -64,28 +64,11 @@ export default defineComponent({
             }
             saveElevatorsState(this.queue, this.elevators);
         },
-        onElevatorMove(e: boolean, index: number) {
-            if (!e) {
-                const elevator = this.elevators[index];
-                this.floors[elevator.nextFloor] = false;
-            }
-        },
-        onElevatorFree(e: boolean, index: number) {
-            const elevator = this.elevators[index];
-            elevator.isMoving = !e;
-            if (e) {
-                this.launchElevator(elevator);
-            }
-        },
-        launchElevator(elevator: Elevator) {
-            const firstInQueue = this.queue.shift();
-            if (firstInQueue !== undefined) {
-                elevator.nextFloor = firstInQueue;
-            }
-            saveElevatorsState(this.queue, this.elevators);
-        },
-        getFreeElevators() {
-            return this.elevators.filter((elevator) => !elevator.isMoving);
+        checkFloorCallable(floor: number) {
+            return (
+                !this.queue.includes(floor) &&
+                !this.getElevatorsPosition().includes(floor)
+            );
         },
         findRelevantElevator(floor: number) {
             const freeElevators = this.getFreeElevators();
@@ -101,14 +84,32 @@ export default defineComponent({
                 }, freeElevators[0]) || null
             );
         },
+        launchElevator(elevator: Elevator) {
+            const firstInQueue = this.queue.shift();
+            if (firstInQueue !== undefined) {
+                elevator.nextFloor = firstInQueue;
+            }
+            saveElevatorsState(this.queue, this.elevators);
+        },
+        onElevatorMove(e: boolean, index: number) {
+            if (!e) {
+                const elevator = this.elevators[index];
+                this.floors[elevator.nextFloor] = false;
+            }
+        },
+        onElevatorFree(e: boolean, index: number) {
+            const elevator = this.elevators[index];
+            elevator.isMoving = !e;
+            if (e) {
+                this.launchElevator(elevator);
+            }
+        },
+        getFreeElevators() {
+            return this.elevators.filter((elevator) => !elevator.isMoving);
+        },
+
         getElevatorsPosition() {
             return this.elevators.map((elevator) => elevator.nextFloor);
-        },
-        checkFloorCallable(floor: number) {
-            return (
-                !this.queue.includes(floor) &&
-                !this.getElevatorsPosition().includes(floor)
-            );
         },
     },
     mounted() {
